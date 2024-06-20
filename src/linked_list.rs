@@ -1,9 +1,12 @@
 type Item<T> = Option<Box<Node<T>>>;
 
+#[derive(Clone, Debug)]
 pub struct SimpleLinkedList<T> {
     head: Item<T>,
+    len: usize,
 }
 
+#[derive(Clone, Debug)]
 struct Node<T> {
     value: T,
     next: Item<T>,
@@ -11,7 +14,7 @@ struct Node<T> {
 
 impl<T> SimpleLinkedList<T> {
     pub fn new() -> Self {
-        Self { head: None }
+        Self { head: None, len: 0 }
     }
 
     pub fn is_empty(&self) -> bool {
@@ -19,15 +22,7 @@ impl<T> SimpleLinkedList<T> {
     }
 
     pub fn len(&self) -> usize {
-        let mut count = 0;
-        let mut next_node = &self.head;
-
-        while let Some(next) = next_node {
-            count += 1;
-            next_node = &next.next;
-        }
-
-        count
+        self.len
     }
 
     pub fn push(&mut self, element: T) {
@@ -35,11 +30,13 @@ impl<T> SimpleLinkedList<T> {
             value: element,
             next: self.head.take(),
         }));
+        self.len += 1;
     }
 
     pub fn pop(&mut self) -> Option<T> {
         let old_head = self.head.take()?;
         self.head = old_head.next;
+        self.len -= 1;
         Some(old_head.value)
     }
 
@@ -59,6 +56,31 @@ impl<T> SimpleLinkedList<T> {
         }
 
         new_list
+    }
+
+    pub fn iter(&self) -> SimpleLinkedListIter<T> {
+        SimpleLinkedListIter::new(self)
+    }
+}
+
+struct SimpleLinkedListIter<'a, T> {
+    curr: &'a Item<T>,
+}
+
+impl<'a, T> SimpleLinkedListIter<'a, T> {
+    pub fn new(list: &'a SimpleLinkedList<T>) -> Self {
+        Self { curr: &list.head }
+    }
+}
+
+impl<'a, T> Iterator for SimpleLinkedListIter<'a, T> {
+    type Item = &'a T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.curr.as_ref().map(|v| {
+            self.curr = &v.next;
+            &v.value
+        })
     }
 }
 
