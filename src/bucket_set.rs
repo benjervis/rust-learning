@@ -5,15 +5,9 @@ use crate::linked_list::SimpleLinkedList;
 const COLLISION_LIMIT: usize = 2;
 
 #[derive(Debug, Clone)]
-pub struct GlobalSet<T> {
+pub struct BucketSet<T> {
     data: Vec<SimpleLinkedList<T>>,
     inserted_elements: usize,
-}
-
-enum IndexResult {
-    Existing(usize),
-    Empty(usize),
-    CollisionLimitReached,
 }
 
 fn next_capacity_step(current: usize) -> usize {
@@ -23,7 +17,7 @@ fn next_capacity_step(current: usize) -> usize {
 pub trait Settable: Hash + Clone + PartialEq {}
 impl<T: Hash + Clone + PartialEq> Settable for T {}
 
-impl<T: Settable> GlobalSet<T> {
+impl<T: Settable> BucketSet<T> {
     pub fn new(input: &[T]) -> Self {
         let mut new_set = Self {
             data: vec![SimpleLinkedList::new(); next_capacity_step(input.len())],
@@ -134,7 +128,7 @@ impl<T: Settable> GlobalSet<T> {
     }
 }
 
-impl<T: Settable> PartialEq for GlobalSet<T> {
+impl<T: Settable> PartialEq for BucketSet<T> {
     fn eq(&self, other: &Self) -> bool {
         if self.inserted_elements != other.inserted_elements {
             return false;
