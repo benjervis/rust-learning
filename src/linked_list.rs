@@ -58,22 +58,22 @@ impl<T> SimpleLinkedList<T> {
         new_list
     }
 
-    pub fn iter(&self) -> SimpleLinkedListIter<T> {
-        SimpleLinkedListIter::new(self)
+    pub fn iter(&self) -> Iter<T> {
+        Iter::new(self)
     }
 }
 
-struct SimpleLinkedListIter<'a, T> {
+struct Iter<'a, T> {
     curr: &'a Item<T>,
 }
 
-impl<'a, T> SimpleLinkedListIter<'a, T> {
+impl<'a, T> Iter<'a, T> {
     pub fn new(list: &'a SimpleLinkedList<T>) -> Self {
         Self { curr: &list.head }
     }
 }
 
-impl<'a, T> Iterator for SimpleLinkedListIter<'a, T> {
+impl<'a, T> Iterator for Iter<'a, T> {
     type Item = &'a T;
 
     fn next(&mut self) -> Option<Self::Item> {
