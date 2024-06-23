@@ -44,7 +44,8 @@ impl<T: Settable> BucketSet<T> {
     }
 
     pub fn contains(&self, element: &T) -> bool {
-        matches!(self.get_bucket(element), IndexResult::Existing(_))
+        let bucket_index = self.get_bucket(element);
+        self.data[bucket_index].contains(element)
     }
 
     fn resize(&mut self) {
@@ -65,12 +66,24 @@ impl<T: Settable> BucketSet<T> {
         let bucket = self.get_bucket(&element);
         let list = &mut self.data[bucket];
 
+        if list.contains(&element) {
+            return;
+        }
+
         if list.len() >= COLLISION_LIMIT {
             self.resize();
             return self.add(element);
         }
 
         list.push(element);
+        self.inserted_elements += 1;
+    }
+
+    pub fn values(&self) -> impl Iterator<Item = &T> {
+        self.data
+            .iter()
+            .filter(|l| !l.is_empty())
+            .flat_map(|l| l.iter())
     }
 
     pub fn is_subset(&self, other: &Self) -> bool {
@@ -78,10 +91,7 @@ impl<T: Settable> BucketSet<T> {
             return false;
         }
 
-        self.data
-            .iter()
-            .flatten()
-            .all(|element| other.contains(element))
+        self.values().all(|element| other.contains(element))
     }
 
     pub fn is_empty(&self) -> bool {
@@ -89,16 +99,13 @@ impl<T: Settable> BucketSet<T> {
     }
 
     pub fn is_disjoint(&self, other: &Self) -> bool {
-        self.data
-            .iter()
-            .flatten()
-            .all(|element| !other.contains(element))
+        self.values().all(|element| !other.contains(element))
     }
 
     #[must_use]
     pub fn intersection(&self, other: &Self) -> Self {
         let mut new_list = Self::new(&[]);
-        for element in self.data.iter().flatten() {
+        for element in self.values() {
             if other.contains(element) {
                 new_list.add(element.clone());
             }
@@ -109,7 +116,7 @@ impl<T: Settable> BucketSet<T> {
     #[must_use]
     pub fn difference(&self, other: &Self) -> Self {
         let mut new_list = Self::new(&[]);
-        for element in self.data.iter().flatten() {
+        for element in self.values() {
             if !other.contains(element) {
                 new_list.add(element.clone());
             }
@@ -121,7 +128,7 @@ impl<T: Settable> BucketSet<T> {
     #[must_use]
     pub fn union(&self, other: &Self) -> Self {
         let mut new_list = self.clone();
-        for element in other.data.iter().flatten() {
+        for element in other.values() {
             new_list.add(element.clone());
         }
         new_list
