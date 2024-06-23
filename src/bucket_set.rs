@@ -104,34 +104,23 @@ impl<T: Settable> BucketSet<T> {
 
     #[must_use]
     pub fn intersection(&self, other: &Self) -> Self {
-        let mut new_list = Self::new(&[]);
-        for element in self.values() {
-            if other.contains(element) {
-                new_list.add(element.clone());
-            }
-        }
-        new_list
+        self.values()
+            .filter(|e| other.contains(e))
+            .cloned()
+            .collect()
     }
 
     #[must_use]
     pub fn difference(&self, other: &Self) -> Self {
-        let mut new_list = Self::new(&[]);
-        for element in self.values() {
-            if !other.contains(element) {
-                new_list.add(element.clone());
-            }
-        }
-
-        new_list
+        self.values()
+            .filter(|e| !other.contains(e))
+            .cloned()
+            .collect()
     }
 
     #[must_use]
     pub fn union(&self, other: &Self) -> Self {
-        let mut new_list = self.clone();
-        for element in other.values() {
-            new_list.add(element.clone());
-        }
-        new_list
+        self.values().chain(other.values()).cloned().collect()
     }
 }
 
@@ -142,5 +131,17 @@ impl<T: Settable> PartialEq for BucketSet<T> {
         }
 
         self.is_subset(other)
+    }
+}
+
+impl<T: Settable> FromIterator<T> for BucketSet<T> {
+    fn from_iter<I: IntoIterator<Item = T>>(iter: I) -> Self {
+        let mut new_set = Self::new(&[]);
+
+        for item in iter.into_iter() {
+            new_set.add(item);
+        }
+
+        new_set
     }
 }
