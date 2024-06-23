@@ -69,7 +69,7 @@ impl<T: PartialEq> SimpleLinkedList<T> {
     }
 }
 
-struct Iter<'a, T> {
+pub struct Iter<'a, T> {
     curr: &'a Item<T>,
 }
 
