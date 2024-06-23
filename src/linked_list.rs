@@ -63,6 +63,12 @@ impl<T> SimpleLinkedList<T> {
     }
 }
 
+impl<T: PartialEq> SimpleLinkedList<T> {
+    pub fn contains(&self, element: &T) -> bool {
+        self.iter().any(|e| e == element)
+    }
+}
+
 struct Iter<'a, T> {
     curr: &'a Item<T>,
 }
