@@ -1,6 +1,6 @@
 use std::hash::{DefaultHasher, Hash, Hasher};
 
-use crate::linked_list::SimpleLinkedList;
+use linked_list::SimpleLinkedList;
 
 const COLLISION_LIMIT: usize = 2;
 

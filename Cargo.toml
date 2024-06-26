@@ -1,7 +1,3 @@
-[package]
-edition = "2021"
-name = "custom-set"
-version = "1.0.1"
-
-[lib]
-doctest = false
+[workspace]
+members = ["data-structures/*"]
+resolver = "2"
