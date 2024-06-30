@@ -1,3 +1,3 @@
 [workspace]
-members = ["data-structures/*", "graph-dsl"]
+members = ["data-structures/*", "graph-dsl", "graph-parser"]
 resolver = "2"
